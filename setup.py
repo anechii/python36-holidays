@@ -10,7 +10,21 @@
 #  Website: https://github.com/vacanza/python-holidays
 #  License: MIT (see LICENSE file)
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 if __name__ == "__main__":
-    setup()
+    setup(
+        name='holidays',
+        version='0.48.1',
+        description='Generate and work with holidays in Python',
+        long_description= open('README.rst', encoding='utf-8').read(),
+        author='Aziz Nechi',
+        author_email='aziz.nechi@factset.com',
+        url='https://github.com/anechii/python36-holidays/',
+        packages= find_packages(include=["holidays*"]),
+        install_requires=[
+            'python-dateutil',
+        ],
+        keywords='holidays, calendar, l10n',
+        python_requires='>=3.6',
+    )
