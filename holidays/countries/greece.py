@@ -66,9 +66,10 @@ class Greece(ObservedHolidayBase, ChristianHolidays, InternationalHolidays):
         # Whit Monday.
         self._add_whit_monday(tr("Δευτέρα του Αγίου Πνεύματος"))
 
+        may_1 = self._add_labor_day(self.tr("Εργατική Πρωτομαγιά"))
         self._add_observed(
             # Labor Day.
-            may_1 := self._add_labor_day(self.tr("Εργατική Πρωτομαγιά")),
+            may_1,
             rule=MON_TO_NEXT_TUE if may_1 == easter_monday else SAT_SUN_TO_NEXT_WORKDAY,
         )
 
