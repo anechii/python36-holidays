@@ -16,7 +16,6 @@ import copy
 import warnings
 from calendar import isleap
 from datetime import date, datetime, timedelta, timezone
-from functools import cached_property
 from gettext import gettext, translation
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Union, cast
@@ -300,13 +299,15 @@ class HolidayBase(Dict[date, str]):
             raise ValueError("Categories cannot be empty if `default_category` is not set.")
 
         categories = _normalize_arguments(str, categories) or {self.default_category}
-        if unknown_categories := categories.difference(  # type: ignore[union-attr]
+        unknown_categories = categories.difference(  # type: ignore[union-attr]
             self.supported_categories
-        ):
+        )
+        if unknown_categories:
             raise ValueError(f"Category is not supported: {', '.join(unknown_categories)}.")
 
         # Subdivision validation.
-        if subdiv := subdiv or prov or state:
+        subdiv = subdiv or prov or state
+        if subdiv:
             # Handle subdivisions passed as integers.
             if isinstance(subdiv, int):
                 subdiv = str(subdiv)
@@ -321,7 +322,8 @@ class HolidayBase(Dict[date, str]):
                 )
 
             # Deprecated arguments.
-            if prov_state := prov or state:
+            prov_state = prov or state
+            if prov_state:
                 warnings.warn(
                     "Arguments prov and state are deprecated, use "
                     f"subdiv='{prov_state}' instead.",
@@ -340,7 +342,8 @@ class HolidayBase(Dict[date, str]):
                 )
 
         # Special holidays validation.
-        if (has_substituted_holidays := getattr(self, "has_substituted_holidays", False)) and (
+        has_substituted_holidays = getattr(self, "has_substituted_holidays", False)
+        if (has_substituted_holidays) and (
             not getattr(self, "substituted_label", None)
             or not getattr(self, "substituted_date_format", None)
         ):
@@ -687,11 +690,11 @@ class HolidayBase(Dict[date, str]):
             "years",
         )
 
-    @cached_property
+    @property
     def _entity_code(self):
         return getattr(self, "country", getattr(self, "market", None))
 
-    @cached_property
+    @property
     def _normalized_subdiv(self):
         return (
             self.subdivisions_aliases.get(self.subdiv, self.subdiv)
@@ -830,7 +833,8 @@ class HolidayBase(Dict[date, str]):
     def _populate_common_holidays(self):
         """Populate entity common holidays."""
         for category in self._sorted_categories:
-            if pch_method := getattr(self, f"_populate_{category.lower()}_holidays", None):
+            pch_method = getattr(self, f"_populate_{category.lower()}_holidays", None)
+            if pch_method:
                 pch_method()
 
         if self.has_special_holidays:
@@ -844,11 +848,12 @@ class HolidayBase(Dict[date, str]):
             return None
 
         for category in self._sorted_categories:
-            if asch_method := getattr(
+            asch_method = getattr(
                 self,
                 f"_populate_subdiv_{self._normalized_subdiv}_{category.lower()}_holidays",
                 None,
-            ):
+            )
+            if asch_method:
                 asch_method()
 
         if self.has_special_holidays:
